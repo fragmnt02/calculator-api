@@ -41,7 +41,7 @@ app.use((req, res, next) => {
 )
 
 // Mount the routes
-app.use('/v1', v1Routes);
+app.use('/api/v1', v1Routes);
 
 // Error handling middleware
 app.use((err, _, res) => {
