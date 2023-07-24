@@ -5,11 +5,6 @@ async function createRecord(recordData) {
     return Record.create(recordData);
 }
 
-// Repository function to find a record by ID
-async function getRecordById(id) {
-    return Record.findById(id);
-}
-
 // Repository function to find all records with pagination and filtering
 async function getAllRecords({ page, limit, filterOptions }) {
     const query = Record.find();
@@ -29,15 +24,21 @@ async function getAllRecords({ page, limit, filterOptions }) {
 
 // Repository function to soft delete a record by ID
 async function softDeleteRecordById(id) {
-    const record = await Record.findByIdAndUpdate(id, { isDeleted: true }, { new: true });
+    const record = await Record.findByIdAndUpdate(id, { is_deleted: true }, { new: true });
     return record;
-  }
+}
+
+// Repository function to get the latest record made by a specific user
+const getLatestRecordByUserId = async (userId) => {
+    const latestRecord = await Record.findOne({ user_id: userId }).sort({ date: -1 }).exec();
+    return latestRecord;
+};
 
 module.exports = {
     createRecord,
-    getRecordById,
     getAllRecords,
     softDeleteRecordById,
+    getLatestRecordByUserId,
 };
 
 

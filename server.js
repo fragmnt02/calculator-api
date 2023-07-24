@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
+const cors = require('cors')
 const app = express();
 const connectDB = require('./config/database');
 // Routes
@@ -10,14 +11,23 @@ const v1Routes = require('./app/routes/v1');
 // Connect to the MongoDB database
 connectDB();
 
+const NO_AUTH_ROUTES = [
+    { path: '/api/v1/users/login', method: 'post' },
+    { path: '/api/v1/users/logout', method: 'get' },
+    { path: '/api/v1/users', method: 'post' },
+];
+
 // Middlewares
+
 app.use(cookieParser());
+app.use(cors({ credentials: true, origin: true }));
 
 app.use(express.json());
 
 app.use((req, res, next) => {
-    // Skip validation for the login resolver
-    if ((req.path === '/v1/users/login' || req.path === '/v1/users') && req.method === 'POST') {
+    // Skip validation for some resolvers resolver
+    const isNotAuthRoute = NO_AUTH_ROUTES.find((r) => r.path === req.path && r.method === req.method.toLowerCase());
+    if (isNotAuthRoute) {
         return next();
     }
 
@@ -31,17 +41,23 @@ app.use((req, res, next) => {
     try {
         // Verify the access token using your secret key
         const decoded = jwt.verify(accessToken, process.env.JWT_PASS);
-        req.userId = decoded.userId; // Save the userId to be used in the resolvers
+        /*
+        if (decoded.exp < new Date()) {
+            throw new Error('Token expired');
+        }
+        */
+        req.userId = decoded.userId;
         next();
     } catch (error) {
         console.log(error);
         return res.status(401).json({ message: 'Invalid access token' });
     }
-}
-)
+});
 
 // Mount the routes
 app.use('/api/v1', v1Routes);
+
+
 
 // Error handling middleware
 app.use((err, _, res) => {

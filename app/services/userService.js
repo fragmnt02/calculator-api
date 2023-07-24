@@ -19,49 +19,6 @@ async function createUser(userData) {
     };
 }
 
-// Service function to find a user by ID
-async function getUserById(id) {
-    const user = await userRepository.getUserById(id);
-    return {
-        username: user.username,
-        status: user.status,
-        id: user._id,
-    };
-}
-
-// Service function to find a user by username (email)
-async function getUserByUsername(username) {
-    const user = await userRepository.getUserByUsername(username);
-    return {
-        username: user.username,
-        status: user.status,
-        id: user._id,
-    };
-}
-
-// Service function to find all users with pagination and filtering
-async function getAllUsers({ page, limit, filterOptions }) {
-    const response = await userRepository.getAllUsers({ page, limit, filterOptions });
-    return {
-        ...response,
-        users: response.users.map(u => ({
-            username: u.username,
-            status: u.status,
-            id: u._id,
-        })),
-    };
-}
-
-// Service function to update a user's status
-async function updateUserStatus(id, status) {
-    const user = await userRepository.updateUserStatus(id, status);
-    return {
-        username: user.username,
-        status: user.status,
-        id: user._id,
-    };
-}
-
 // Service function to verify user login
 async function verifyUserLogin(username, password) {
     const user = await userRepository.getUserByUsername(username);
@@ -84,9 +41,5 @@ async function verifyUserLogin(username, password) {
 
 module.exports = {
     createUser,
-    getUserById,
-    getUserByUsername,
-    getAllUsers,
-    updateUserStatus,
     verifyUserLogin,
 };
